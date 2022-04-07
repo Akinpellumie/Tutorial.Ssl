@@ -1,0 +1,35 @@
+version: "3.4"
+
+services:
+    tutorial-ssl:
+        image: tutorial-ssl:latest
+        container_name: tutorial-ssl
+        build:
+            context: .
+            dockerfile: ./Tutorial.Ssl/Dockerfile
+        ports:
+            - 13031:80
+            - 13032:443
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=https://+:443;http://+:80
+            - ASPNETCORE_Kestrel__Certificates__Default__Password=password
+            - ASPNETCORE_Kestrel__Certificates__Default__Path=/root/.aspnet/https/tutorial-ssl-cert.pfx
+
+    tutorial-ssl-proxy:
+        image: tutorial-ssl-proxy:latest
+        container_name: tutorial-ssl-proxy
+        build:
+            context: .
+            dockerfile: ./Tutorial.Ssl.Proxy/Dockerfile
+        ports:
+            - 13033:80
+            - 13034:443
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=https://+:443;http://+:80
+            - ASPNETCORE_Kestrel__Certificates__Default__Password=password
+            - ASPNETCORE_Kestrel__Certificates__Default__Path=/root/.aspnet/https/tutorial-ssl-cert.pfx
+        volumes:
+            - ~/AppData/Roaming/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+            - ~/AppData/Roaming/ASP.NET/Https:/root/.aspnet/https:ro
