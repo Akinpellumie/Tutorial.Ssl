@@ -17,15 +17,15 @@ RUN dotnet publish "Tutorial.Ssl.Proxy.csproj" -c Release -o /app/publish
 
 #--- Generate ROOT Cert---
 FROM base AS ssl
-WORKDIR /root/.aspnet/https
+WORKDIR /https-root
 COPY ["tutorial-root-cert.cer","."]
-RUN openssl x509 -inform DER -in /root/.aspnet/https/tutorial-root-cert.cer -out /root/.aspnet/https/tutorial-root-cert.crt
+RUN openssl x509 -inform DER -in /https-root/tutorial-root-cert.cer -out /https-root/tutorial-root-cert.crt
 #-------------------------
 
 FROM base AS final
 
 #--- Copy API Cert and register Root Cert ---
-COPY --from=ssl /root/.aspnet/https/tutorial-root-cert.crt /usr/local/share/ca-certificates/
+COPY --from=ssl /https-root/tutorial-root-cert.crt /usr/local/share/ca-certificates/
 RUN update-ca-certificates
 #--------------------------------------------
 
